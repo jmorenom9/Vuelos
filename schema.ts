@@ -8,7 +8,7 @@ export const schema = `#graphql
     }
 
     type Query {
-        getFlights(origen: String, destino: String): [Flights!]
+        getFlights(origen: String, destino: String): [Flights!]!
         getFlight(id: ID!): Flights!
     }
 

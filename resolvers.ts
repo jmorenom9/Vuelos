@@ -4,17 +4,16 @@ import { fromModelToFlight } from "./utils.ts";
 
 export const resolvers = {
     Query: {
-        getFlights: async (_: unknown, { origen, destino }: { origen: string, destino: string }, context: { FlightsCollection: Collection<FlightsModel> }): Promise<Flights | null> => {
+        getFlights: async (_: unknown, { origen, destino }: { origen: string, destino: string }, context: { FlightsCollection: Collection<FlightsModel> }): Promise<Flights[] | null> => {
             const flightModel = await context.FlightsCollection.find({
-                $or: [{ origen: origen }, { destino: destino }]
+                $or: [{ origen: origen }, { destino: destino }, {}]
               }).toArray();
-              
-              if (!flightModel || flightModel.length === 0) {
+
+            if (!flightModel) {
                 return null;
-              } else {
-                return fromModelToFlight(flightModel);
-              }
-                      
+            }
+
+            return flightModel.map((elem) => fromModelToFlight(elem));          
         },
 
         getFlight: async (_: unknown, { id }: { id: string }, context: { FlightsCollection: Collection<FlightsModel>; }): Promise<Flights | null> => {
@@ -29,13 +28,7 @@ export const resolvers = {
     },
 
     Mutation: {
-        addFlight: async (
-            _: unknown,
-            args: { origen: string; destino: string; fechaHora: string },
-            context: {
-              FlightsCollection: Collection<FlightsModel>;
-            },
-          ): Promise<Flights> => {
+        addFlight: async (_: unknown, args: { origen: string; destino: string; fechaHora: string },context: { FlightsCollection: Collection<FlightsModel>; }): Promise<Flights> => {
             const { origen, destino, fechaHora } = args;
             const { insertedId } = await context.FlightsCollection.insertOne({
               origen,
